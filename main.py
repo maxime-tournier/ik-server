@@ -29,7 +29,7 @@ with pyqglviewer.app():
     w.body = body
     w.joint = joint
 
-    w.source = solver.step(dofs, body, joint, 1e-1, compliance = 0)
+    w.source = solver.step(dofs, body, joint, dt = 1e-1, compliance = 1e-3)
 
     w.show()
     w.startAnimation()

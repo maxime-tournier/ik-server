@@ -7,11 +7,6 @@ import json
 # TODO make this easy to customize
 from numpy import array as vec
 
-class Info : pass
-
-
-
-
 
 head = {
     'mass': 5,
@@ -20,34 +15,34 @@ head = {
 
 trunk =  {
     'mass': 20,
-    'dim': vec([0.4, 0.7, 0.3])
+    'dim': vec([0.4, 0.7, 0.25])
 }
 
 
 femur =  {
     'mass': 7,
-    'dim': vec([0.2, 0.5, 0.3]),
+    'dim': vec([0.2, 0.5, 0.2]),
 }
 
 
 tibia =  {
     'mass': 5,
-    'dim': [0.20, 0.4, 0.30]
+    'dim': [0.10, 0.4, 0.1]
 }
 
 arm = {
     'mass': 4,
-    'dim': [0.10, 0.4, 0.10]
+    'dim': [0.1, 0.4, 0.10]
 }
 
 forearm =  {
     'mass': 3,
-    'dim': [0.10, 0.4, 0.10]
+    'dim': [0.1, 0.4, 0.1]
 }
 
 foot = {
     'mass': 2,
-    'dim': [0.10, 0.3, 0.10]
+    'dim': [0.1, 0.3, 0.1]
 }
 
 stiffness = 1e2
@@ -55,48 +50,67 @@ compliance = 1 / stiffness
 
 def hip(side):
 
-    sign = -1 if side is 'left' else 1
+    sign = -1 if side == 'left' else 1
     
     return {
-        "coords": [['trunk', [sign * 0.2, -0.35, 0]],
-                   ['femur_{}'.format(side), [0, 0.25, 0]]],
+        "coords": [['trunk', [sign * trunk['dim'][0] / 2,
+                              - trunk['dim'][1] / 2,
+                              0]],
+                   ['femur_{}'.format(side), [0,
+                                              femur['dim'][1] / 2,
+                                              0]]],
         "rest": Quaternion(),
         "compliance": compliance
     }
 
 
 def shoulder(side):
-    sign = -1 if side is 'left' else 1
+    sign = 1 if side == 'left' else -1
     
     return {
-        "coords": [['trunk', [-0.25, 0.35, 0]],
-                   ['arm_{}'.format(side), [0, 0.2, 0]]],
+        "coords": [['trunk', [sign * (1.2 * trunk['dim'][0]) / 2,
+                              trunk['dim'][1] / 2,
+                              0]],
+                   ['arm_{}'.format(side), [0, arm['dim'][1] / 2, 0]]],
         
-        "rest": Quaternion.exp( sign * math.pi / 2 * basis(2, 3)),
+        "rest": Quaternion.exp( sign * math.pi / 2.0 * basis(2, 3)),
         "compliance": compliance
     }
 
 
 def elbow(side):
     return  {
-        "coords": [['arm_{}'.format(side), [0, -0.2, 0]],
-                   ['forearm_{}'.format(side), [0, 0.2, 0]]],
+        "coords": [['arm_{}'.format(side), [0,
+                                            -arm['dim'][1] / 2,
+                                            0]],
+                   ['forearm_{}'.format(side), [0,
+                                                forearm['dim'][1] / 2,
+                                                0]]],
         "rest": Quaternion(),
         "compliance": compliance
     }
 
 def knee(side):
     return {
-        "coords": [['femur_{}'.format(side), [0, -0.2, 0]],
-                   ['tibia_{}'.format(side), [0, 0.2, 0]]],
+        "coords": [['femur_{}'.format(side), [0,
+                                              -femur['dim'][1] / 2,
+                                              0]],
+                   ['tibia_{}'.format(side), [0,
+                                              tibia['dim'][1] / 2,
+                                              0]]],
         "rest": Quaternion(),
         "compliance": compliance
     }
 
+# TODO finer ?
 def ankle(side):
     return {
-        "coords": [['tibia_{}'.format(side), [0, -0.2, 0]],
-                   ['foot_{}'.format(side), [0, 0.15, 0]]],
+        "coords": [['tibia_{}'.format(side), [0,
+                                              -tibia['dim'][1] / 2,
+                                              0]],
+                   ['foot_{}'.format(side), [0,
+                                             foot['dim'][1] / 2,
+                                             0]]],
         "rest": Quaternion.exp( -math.pi /2  * basis(0, 3) ),
         "compliance": compliance
     }
@@ -135,15 +149,15 @@ skeleton = {
             "compliance": compliance
         },
 
-        'hip_left': hip('left'),
-        'hip_right': hip('right'),
-
         'shoulder_left': shoulder('left'),
         'shoulder_right': shoulder('right'),
 
         'elbow_left': elbow('left'),
         'elbow_right': elbow('right'),
 
+        'hip_left': hip('left'),
+        'hip_right': hip('right'),
+        
         'knee_left': knee('left'),
         'knee_right': knee('right'),
 
@@ -166,7 +180,6 @@ def cleanup(x):
         return x.tolist()
     except AttributeError:
         return x
-
 
 print json.dumps( cleanup(skeleton) )
 

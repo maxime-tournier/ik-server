@@ -10,8 +10,9 @@ def integrate(dofs, x, dt):
         gi.orient = gi.orient * Quaternion.exp( dt * xi.angular )
 
 
-def step(dofs, body, joint, dt, **kwargs):
+def step(dofs, body, joint, **kwargs):
 
+    dt = kwargs.get('dt', 1)
     M = skeleton.inertia(body, dofs)
 
     L = np.linalg.cholesky(M)
