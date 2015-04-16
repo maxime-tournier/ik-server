@@ -5,73 +5,124 @@ import json
 
 
 # TODO make this easy to customize
+from numpy import array as vec
+
+class Info : pass
+
+
+
+
+
+head = {
+    'mass': 5,
+    'dim': vec([0.3, 0.3, 0.3]),
+}
+
+trunk =  {
+    'mass': 20,
+    'dim': vec([0.4, 0.7, 0.3])
+}
+
+
+femur =  {
+    'mass': 7,
+    'dim': vec([0.2, 0.5, 0.3]),
+}
+
+
+tibia =  {
+    'mass': 5,
+    'dim': [0.20, 0.4, 0.30]
+}
+
+arm = {
+    'mass': 4,
+    'dim': [0.10, 0.4, 0.10]
+}
+
+forearm =  {
+    'mass': 3,
+    'dim': [0.10, 0.4, 0.10]
+}
+
+foot = {
+    'mass': 2,
+    'dim': [0.10, 0.3, 0.10]
+}
+
+stiffness = 1e2
+compliance = 1 / stiffness
+
+def hip(side):
+
+    sign = -1 if side is 'left' else 1
+    
+    return {
+        "coords": [['trunk', [sign * 0.2, -0.35, 0]],
+                   ['femur_{}'.format(side), [0, 0.25, 0]]],
+        "rest": Quaternion(),
+        "compliance": compliance
+    }
+
+
+def shoulder(side):
+    sign = -1 if side is 'left' else 1
+    
+    return {
+        "coords": [['trunk', [-0.25, 0.35, 0]],
+                   ['arm_{}'.format(side), [0, 0.2, 0]]],
+        
+        "rest": Quaternion.exp( sign * math.pi / 2 * basis(2, 3)),
+        "compliance": compliance
+    }
+
+
+def elbow(side):
+    return  {
+        "coords": [['arm_{}'.format(side), [0, -0.2, 0]],
+                   ['forearm_{}'.format(side), [0, 0.2, 0]]],
+        "rest": Quaternion(),
+        "compliance": compliance
+    }
+
+def knee(side):
+    return {
+        "coords": [['femur_{}'.format(side), [0, -0.2, 0]],
+                   ['tibia_{}'.format(side), [0, 0.2, 0]]],
+        "rest": Quaternion(),
+        "compliance": compliance
+    }
+
+def ankle(side):
+    return {
+        "coords": [['tibia_{}'.format(side), [0, -0.2, 0]],
+                   ['foot_{}'.format(side), [0, 0.15, 0]]],
+        "rest": Quaternion.exp( -math.pi /2  * basis(0, 3) ),
+        "compliance": compliance
+    }
+
 
 skeleton = {
     
     'body': {
 
-        'head': {
-            'mass': 5,
-            'dim': [0.3, 0.3, 0.3]
-        },
+        'head': head,
+        'trunk': trunk,
 
-        'trunk': {
-            'mass': 20,
-            'dim': [0.40, 0.70, 0.30]
-        },
+        'femur_left': femur,
+        'femur_right': femur,
 
-        'femur_left': {
-            'mass': 7,
-            'dim': [0.20, 0.5, 0.30]
-        },
+        'tibia_left': tibia,
+        'tibia_right': tibia,
 
-        'femur_right': {
-            'mass': 7,
-            'dim': [0.20, 0.5, 0.30]
-        },
-
-        'tibia_left': {
-            'mass': 5,
-            'dim': [0.20, 0.4, 0.30]
-        },
-
-        'tibia_right': {
-            'mass': 5,
-            'dim': [0.20, 0.4, 0.30]
-        },
-
-        'arm_left': {
-            'mass': 4,
-            'dim': [0.10, 0.4, 0.10]
-        },
-
-        'forearm_left': {
-            'mass': 3,
-            'dim': [0.10, 0.4, 0.10]
-        },
-
+        'arm_left': arm,
+        'arm_right': arm,
         
-        'arm_right': {
-            'mass': 4,
-            'dim': [0.10, 0.4, 0.10]
-        },
+        'forearm_left': forearm,
+        'forearm_right': forearm,
 
-        'forearm_right': {
-            'mass': 3,
-            'dim': [0.10, 0.4, 0.10]
-        },
-
-        'foot_left': {
-            'mass': 2,
-            'dim': [0.10, 0.3, 0.10]
-        },
-
-        'foot_right': {
-            'mass': 2,
-            'dim': [0.10, 0.3, 0.10]
-        },
-
-        
+        'foot_left': foot,
+        'foot_right': foot
     },
     
 
@@ -80,93 +131,43 @@ skeleton = {
         'neck': {
             "coords": [['head', [0, -0.15, 0]],
                        ['trunk', [0, 0.35, 0]]],
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-1
+            "rest": Quaternion(),
+            "compliance": compliance
         },
 
-        'hip_left': {
-            "coords": [['trunk', [-0.2, -0.35, 0]],
-                       ['femur_left', [0, 0.25, 0]]],
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-2
-        },
+        'hip_left': hip('left'),
+        'hip_right': hip('right'),
 
-        'hip_right': {
-            "coords": [['trunk', [0.2, -0.35, 0]],
-                        ['femur_right', [0, 0.25, 0]]],
-            
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-2
-        },
+        'shoulder_left': shoulder('left'),
+        'shoulder_right': shoulder('right'),
 
-        'shoulder_left': {
-             "coords": [['trunk', [-0.25, 0.35, 0]],
-                        ['arm_left', [0, 0.2, 0]]],
-             
-             "rest": Quaternion.exp( -math.pi / 2 * basis(2, 3)).tolist(),
-             "compliance": 1e-2
-        },
+        'elbow_left': elbow('left'),
+        'elbow_right': elbow('right'),
 
-        'shoulder_right': {
-            "coords": [['trunk', [0.25, 0.35, 0]],
-                       ['arm_right', [0, 0.2, 0]]],
+        'knee_left': knee('left'),
+        'knee_right': knee('right'),
 
-            "rest": Quaternion.exp( math.pi / 2 * basis(2, 3)).tolist(),
-             "compliance": 1e-2
-        },
-
-        'elbow_left': {
-            "coords": [['arm_left', [0, -0.2, 0]],
-                       ['forearm_left', [0, 0.2, 0]]],
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-1
-        },
-
-        'elbow_right': {
-            "coords": [['arm_right', [0, -0.2, 0]],
-                       ['forearm_right', [0, 0.2, 0]]],
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-1
-        },
-
-        'knee_left': {
-            "coords": [['femur_left', [0, -0.2, 0]],
-                       ['tibia_left', [0, 0.2, 0]]],
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-1
-            
-        },
-
-        'knee_right': {
-            "coords": [['femur_right', [0, -0.2, 0]],
-                       ['tibia_right', [0, 0.2, 0]]],
-            "rest": Quaternion().tolist(),
-            "compliance": 1e-1
-            
-        },
-
-        'ankle_left': {
-            "coords": [['tibia_left', [0, -0.2, 0]],
-                       ['foot_left', [0, 0.15, 0]]],
-            "rest": Quaternion.exp( -math.pi /2  * basis(0, 3) ).tolist(),
-            "compliance": 1e-1
-            
-        },
-
-        'ankle_right': {
-            "coords": [['tibia_right', [0, -0.2, 0]],
-                       ['foot_right', [0, 0.15, 0]]],
-            "rest": Quaternion.exp( -math.pi /2  * basis(0, 3) ).tolist(),
-            "compliance": 1e-1
-            
-        },
-        
-       
+        'ankle_left': ankle('left'),
+        'ankle_right': ankle('right'),
         
     }
 }
 
 
-print json.dumps( skeleton )
+def cleanup(x):
+    '''make skeleton defintion json-friendly'''
+    
+    if type(x) is dict:
+        return { k:cleanup(v) for k, v in x.iteritems() }
+    if type(x) is list:
+        return [ cleanup(i) for i in x ]
+
+    try:
+        return x.tolist()
+    except AttributeError:
+        return x
+
+
+print json.dumps( cleanup(skeleton) )
 
 
