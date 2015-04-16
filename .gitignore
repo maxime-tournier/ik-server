@@ -1,3 +1,5 @@
 /pyqglviewer/
 *~
 *.pyc
+/.qglviewer.xml
+/skeleton.json
