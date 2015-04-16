@@ -22,6 +22,9 @@ import pyqglviewer
 import solver
 import gui
 
+import constraint
+import target
+
 with pyqglviewer.app():    
 
     w = gui.Viewer()
@@ -29,13 +32,28 @@ with pyqglviewer.app():
     w.body = body
     w.joint = joint
 
-    w.source = solver.step(dofs, body, joint, dt = 1e-1, compliance = 0)
 
+    def inertia(dofs):
+        return skeleton.inertia(body, dofs)
+
+    def constraints(dofs):
+
+        full = (skeleton.constraints(joint, dofs, compliance = 1e-8) +
+                target.constraints(target.definition, body, dofs )
+        )
+        
+        return constraint.merge( full )
+
+
+    w.source = solver.step(dofs, inertia, constraints, dt = 1e-1)
+
+    w.setSceneRadius( 10 )
     w.show()
     w.startAnimation()
 
 # TODO:
 
+# limits
 # - network
 # - external forces
 

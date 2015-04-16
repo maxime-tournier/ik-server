@@ -2,6 +2,8 @@ import numpy as np
 from tool import *
 
 def rigid(dofs, local):
+    '''map a point from local to world coordinates in a rigid frame'''
+    
     res = np.zeros( (3, 6) )
 
     res[:, :3] = np.identity(3)
@@ -11,19 +13,20 @@ def rigid(dofs, local):
 
     res[:, 3:] = -R.dot( hat )
     
-    return res
+    return res, dofs(local)
+
 
 # TODO: could be group-generic
 def relative(p, c, rest):
     Jp = np.zeros( (3, 6) )
     Jc = np.zeros( (3, 6) )
 
-    relative = p.orient.conj() * c.orient
+    relative = p.orient.inv() * c.orient
     
-    Jp[:, 3:] = -relative.matrix()
+    Jp[:, 3:] = -relative.inv().matrix()
     Jc[:, 3:] = np.identity(3) 
 
-    b = (rest.conj() * relative).flip().log()
+    b = (rest.inv() * relative).log()
 
     return Jp, Jc, b
     

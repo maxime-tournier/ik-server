@@ -2,6 +2,8 @@
 import numpy as np
 from tool import *
 
+
+
 def create( skeleton ):
 
     class Body: pass
@@ -86,15 +88,11 @@ def inertia(body, dofs):
 import constraint
 
 def constraints(joint, dofs, **kwargs):
-
-    sub = (constraint.attach, constraint.rest)
-    chunks = [c(joint, dofs, **kwargs) for c in sub]
     
-    J = np.vstack( (c[0] for c in chunks if c ) )
-    b = np.concatenate( tuple(c[1] for c in chunks if c ) )
-    C = np.concatenate( tuple(c[2] for c in chunks if c ) )
+    sub = [constraint.attach, constraint.rest
+    ]
+    return sum( (c(joint, dofs, **kwargs) for c in sub), [] )
 
-    return J, b, C
 
 
     

@@ -150,7 +150,7 @@ class Quaternion(np.ndarray):
 
     def flip(self):
         '''flip quaternion in the real positive halfplane, if needed'''
-        if self.real < 0: self = -self
+        if self.real < 0: self[:] = -self
         return self
     
     def __mul__(self, other):
@@ -186,8 +186,7 @@ class Quaternion(np.ndarray):
 
     def matrix(self):
         '''quaternion to rotation matrix'''
-        # TODO check !
-        
+       
         qr = self.real
         qi = self.imag[0]
         qj = self.imag[1]
@@ -233,9 +232,10 @@ class Quaternion(np.ndarray):
     def log(self):
         '''(principal) logarithm'''
 
-        sign = 1 if self.real > 0 else -1
+        sign = 1 if self.real >= 0 else -1
         
-        w = sign * self.real if self.real < 1 else 1
+        w = sign * self.real
+        if w > 1: w = 1
         
         half_theta = math.acos( w )
 
@@ -245,5 +245,5 @@ class Quaternion(np.ndarray):
         # TODO sinc ?
         
         # note: we return doubled to be consistent with exp
-        return 2 * (sign * half_theta / math.sin(half_theta) * self.imag)
+        return 2 * sign * (half_theta / math.sin(half_theta) * self.imag)
 

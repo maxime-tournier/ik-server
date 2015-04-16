@@ -7,6 +7,8 @@ from tool import *
 import pyqglviewer
 class Viewer(pyqglviewer.QGLViewer):
 
+
+    
     def animate(self):
         try:
             self.dofs = next(self.source)

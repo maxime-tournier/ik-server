@@ -45,7 +45,7 @@ foot = {
     'dim': [0.1, 0.3, 0.1]
 }
 
-stiffness = 1e3
+stiffness = 1e2
 compliance = 1 / stiffness
 
 def hip(side):
