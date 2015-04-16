@@ -45,7 +45,7 @@ foot = {
     'dim': [0.1, 0.3, 0.1]
 }
 
-stiffness = 1e2
+stiffness = 1e3
 compliance = 1 / stiffness
 
 def hip(side):
@@ -87,7 +87,7 @@ def elbow(side):
                                                 forearm['dim'][1] / 2,
                                                 0]]],
         "rest": Quaternion(),
-        "compliance": compliance
+        "compliance": [compliance, 0, 0]
     }
 
 def knee(side):
@@ -99,7 +99,7 @@ def knee(side):
                                               tibia['dim'][1] / 2,
                                               0]]],
         "rest": Quaternion(),
-        "compliance": compliance
+        "compliance": [compliance, 0, 0]
     }
 
 # TODO finer ?
