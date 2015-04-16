@@ -38,7 +38,7 @@ with pyqglviewer.app():
 
     def constraints(dofs):
 
-        full = (skeleton.constraints(joint, dofs, compliance = 1e-8) +
+        full = (skeleton.constraints(joint, dofs, compliance = 0) +
                 target.constraints(target.definition, body, dofs )
         )
         

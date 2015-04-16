@@ -7,9 +7,14 @@ import mapping
 definition = [
 
     { 'body': 'forearm_left',
-      'local': [0, 0, 0],
-      'world': [1, 3, 2],
-      'compliance': 1e-2 }
+      'local': [0, -0.1, 0],
+      'world': [0, 1, 1],
+      'compliance': 1e-4 },
+
+    { 'body': 'forearm_right',
+      'local': [0, -0.1, 0],
+      'world': [0, 1, 1],
+      'compliance': 1e-4 }
 
 ]
 
