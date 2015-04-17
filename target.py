@@ -4,19 +4,19 @@ from tool import *
 
 import mapping
 
-definition = [
+# definition = [
 
-    { 'body': 'forearm_left',
-      'local': [0, -0.1, 0],
-      'world': [0, 1, 1],
-      'compliance': 1e-4 },
+#     { 'body': 'forearm_left',
+#       'local': [0, -0.1, 0],
+#       'world': [0, 1, 1],
+#       'compliance': 1e-4 },
 
-    { 'body': 'forearm_right',
-      'local': [0, -0.1, 0],
-      'world': [0, 1, 1],
-      'compliance': 1e-4 }
+#     { 'body': 'forearm_right',
+#       'local': [0, -0.1, 0],
+#       'world': [0, 1, 1],
+#       'compliance': 1e-4 }
 
-]
+# ]
 
 
 

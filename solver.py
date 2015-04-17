@@ -63,4 +63,4 @@ def step(dofs, inertia, constraints, **kwargs):
         
         integrate(dofs, x, dt)
 
-        yield dofs
+        yield dofs, mu

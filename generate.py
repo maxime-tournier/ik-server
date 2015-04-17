@@ -50,7 +50,7 @@ compliance = 1 / stiffness
 
 def hip(side):
 
-    sign = -1 if side == 'left' else 1
+    sign = 1 if side == 'left' else -1
     
     return {
         "coords": [['trunk', [sign * trunk['dim'][0] / 2,

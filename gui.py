@@ -11,7 +11,7 @@ class Viewer(pyqglviewer.QGLViewer):
     
     def animate(self):
         try:
-            self.dofs = next(self.source)
+            self.dofs, mu = next(self.source)
         except StopIteration:
             import sys
             sys.exit(0)
@@ -52,9 +52,29 @@ class Viewer(pyqglviewer.QGLViewer):
             
         glEnd()
         
+
+
+        if 'targets' in self.__dict__:
+            glColor(1, 0.5, 0)
+            glBegin(GL_LINES)
+
+            for t in self.targets:
+                bi = self.body[t['body']].index
+                b = self.dofs[ bi ]
+
+                world = b( t['local'] )
+                desired = t['world']
+                
+                glVertex(world)
+                glVertex(desired)
+            
+            glEnd()
+
+
+                
         glEnable(GL_LIGHTING)
 
-
+        
     def keyPressEvent(self, e):
         if e.text() == 'r':
             for i in self.dofs:
