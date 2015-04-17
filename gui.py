@@ -11,7 +11,7 @@ class Viewer(pyqglviewer.QGLViewer):
     
     def animate(self):
         try:
-            self.dofs, mu = next(self.source)
+            self.dofs = next(self.source)
         except StopIteration:
             import sys
             sys.exit(0)
@@ -62,10 +62,10 @@ class Viewer(pyqglviewer.QGLViewer):
                 bi = self.body[t['body']].index
                 b = self.dofs[ bi ]
 
-                world = b( t['local'] )
-                desired = t['world']
+                current = b( t['local'] )
+                desired = t['desired']
                 
-                glVertex(world)
+                glVertex(current)
                 glVertex(desired)
             
             glEnd()

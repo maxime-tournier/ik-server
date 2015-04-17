@@ -61,7 +61,7 @@ def make_chunk(name, local, **kwargs):
         return {
             'body': name,
             'local': local,
-            'world': world,
+            'desired': world,
             'compliance': compliance
         }
 
@@ -110,6 +110,7 @@ kinect = {
 
 adaptor = kinect
 
+
 def targets():
     data = payload[0]
 
@@ -126,6 +127,9 @@ def targets():
 
     return res
 
+
+
+
 with pyqglviewer.app():    
 
     w = gui.Viewer()
@@ -137,25 +141,69 @@ with pyqglviewer.app():
     def inertia(dofs):
         return skeleton.inertia(body, dofs)
 
-    def constraints(dofs):
 
-        # print payload[0]
-        t = targets()
+    def skeleton_constraints(dofs):
+        return skeleton.constraints(joint, dofs, compliance = 0)
 
-        # if t: print t
 
-        # hack
-        w.targets = t
+    # TODO these need world 
+    def target_constraints(dofs):
+        return target.constraints(targets(), body, dofs, compliance = 1e-5)
+
+    
+  
+
+    def build( *args ):
+        def res(dofs):
+            full = sum( (f(dofs) for f in args), [] )
+            return constraint.merge( full )
+        return res
+                            
+
+    def source(**kwargs):
+
+        dt = kwargs.get('dt', 1e-1)
+        eps = kwargs.get('eps', 1e-2)
         
-        full = (skeleton.constraints(joint, dofs, compliance = 0) +
-                target.constraints(t, body, dofs, compliance = 1e-5)
-        )
-        
-        return constraint.merge( full )
+        # don't enable targets just yet to get skeleton in shape
+        print 'assembling skeleton...'
+        for d, mu in solver.step(dofs, inertia,
+                                 build(skeleton_constraints),
+                                 dt = dt):
+            yield dofs
+            error = norm(mu)
+            # print error
+            if error <= eps: break
 
+        print 'calibrating...'
+        # now fix the target constraint and calibrate
+        init_targets = targets()
+        init_dofs = np.copy( dofs ).view( dtype = Rigid3 )
 
-    w.source = solver.step(dofs, inertia, constraints, dt = 1e-1)
+        w.targets = init_targets
+        def init_target_constraints(dofs):
+            return target.constraints(init_targets, body, dofs, compliance = 1e-5)
 
+        for d, mu in solver.step(dofs, inertia,
+                                 build(skeleton_constraints,
+                                       init_target_constraints),
+                                 dt = dt):
+            # to stuff with mu
+            yield init_dofs
+            dofs[:] = init_dofs
+
+        # then regular ik
+        print 'ik started'
+        for d, mu in solver.step(dofs, inertia,
+                                    build(skeleton_constraints,
+                                          target_constraints),
+                                    dt = dt):
+            # TODO hack
+            w.targets = targets()
+            yield dofs
+
+    w.source = source(dt = 1e-1)
+    
     w.setSceneRadius( 10 )
     w.show()
     w.startAnimation()

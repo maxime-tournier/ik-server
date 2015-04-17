@@ -25,19 +25,20 @@ def constraints(info, body, dofs, **kwargs):
     cols = 6 * len(body)
 
     compliance = kwargs.get('compliance', 0)
-
+    world = kwargs.get('world', lambda x: x)
+    
     res = []
     
     for i, c in enumerate(info):
         k = body[ c['body'] ].index
         
         local = np.array(c['local'])
-        desired = np.array(c['world'])
+        desired = world( np.array(c['desired']) )
 
         J = np.zeros( (rows, cols) )
-        J[:, 6*k: 6*k+6], world = mapping.rigid(dofs[k], local)
+        J[:, 6*k: 6*k+6], current = mapping.rigid(dofs[k], local)
 
-        phi = world - desired
+        phi = current - desired
 
         c = c.get('compliance', compliance) * np.ones( 3 )
         

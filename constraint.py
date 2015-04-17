@@ -66,6 +66,8 @@ def rest(joint, dofs, **kwargs):
 
 
 
+
+
 def merge( chunks ):
 
     J = np.vstack( (c[0] for c in chunks ) )
