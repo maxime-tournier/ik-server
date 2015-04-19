@@ -81,14 +81,14 @@ class Rigid3(np.ndarray):
     def inv(self):
         res = Rigid3()
         res.orient = self.orient.inv()
-        res.center = -res.orient.rotate(self.center)
+        res.center = -res.orient(self.center)
         return res
 
     def __mul__(self, other):
         res = Rigid3()
 
         res.orient = self.orient * other.orient
-        res.center = self.center + self.orient.rotate(other.center)
+        res.center = self.center + self.orient(other.center)
         
         return res
 
@@ -98,6 +98,8 @@ class Rigid3(np.ndarray):
         return self.center + self.orient(x)
     
 
+
+    
 
 
     
@@ -150,8 +152,9 @@ class Quaternion(np.ndarray):
 
     def flip(self):
         '''flip quaternion in the real positive halfplane, if needed'''
-        if self.real < 0: self[:] = -self
-        return self
+        res = Quaternion()
+        res[:] = -self if self.real < 0 else self
+        return res
     
     def __mul__(self, other):
         '''quaternion product'''
@@ -208,7 +211,16 @@ class Quaternion(np.ndarray):
             [ 2*(qij + qkr), 1.0 - 2 * (qii + qkk), 2 * (qjk - qir)],
             [ 2 * (qik - qjr), 2 * (qjk + qir), 1.0 - 2 * (qii + qjj) ]
             ])
+
+
+    def angle(self):
+        sign = 1 if self.real >= 0 else -1
         
+        w = sign * self.real
+        if w > 1: w = 1
+        
+        half_theta = math.acos( w )
+        return 2 * half_theta
     
     @staticmethod
     def exp(x):
@@ -232,18 +244,11 @@ class Quaternion(np.ndarray):
     def log(self):
         '''(principal) logarithm'''
 
-        sign = 1 if self.real >= 0 else -1
-        
-        w = sign * self.real
-        if w > 1: w = 1
-        
-        half_theta = math.acos( w )
+        q = self.flip()
+        theta = q.angle()
 
-        if math.fabs( half_theta ) < sys.float_info.epsilon:
+        if math.fabs( theta ) < sys.float_info.epsilon:
             return np.zeros(3)
 
-        # TODO sinc ?
-        
-        # note: we return doubled to be consistent with exp
-        return 2 * sign * (half_theta / math.sin(half_theta) * self.imag)
+        return (theta / math.sin(theta / 2.0)) * q.imag
 

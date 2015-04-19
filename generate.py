@@ -10,7 +10,7 @@ from numpy import array as vec
 
 head = {
     'mass': 5,
-    'dim': vec([0.3, 0.3, 0.3]),
+    'dim': vec([0.25, 0.25, 0.25]),
 }
 
 trunk =  {
@@ -73,7 +73,7 @@ def shoulder(side):
                               0]],
                    ['arm_{}'.format(side), [0, arm['dim'][1] / 2, 0]]],
         
-        "rest": Quaternion.exp( sign * math.pi / 2.0 * basis(2, 3)),
+        "rest": Quaternion.exp( sign * math.pi / 4.0 * basis(2, 3)),
         "compliance": compliance
     }
 
@@ -86,7 +86,7 @@ def elbow(side):
                    ['forearm_{}'.format(side), [0,
                                                 forearm['dim'][1] / 2,
                                                 0]]],
-        "rest": Quaternion(),
+        "rest": Quaternion.exp( -math.pi / 6 * basis(0, 3) ),
         "compliance": [compliance, 0, 0]
     }
 
@@ -98,7 +98,7 @@ def knee(side):
                    ['tibia_{}'.format(side), [0,
                                               tibia['dim'][1] / 2,
                                               0]]],
-        "rest": Quaternion(),
+        "rest": Quaternion.exp( math.pi / 6 * basis(0, 3) ),
         "compliance": [compliance, 0, 0]
     }
 
