@@ -3,6 +3,7 @@ from tool import *
 import numpy as np
 
 import skeleton
+import constraint
 
 def integrate(dofs, x, dt):
     for gi, xi in zip(dofs, x):
@@ -38,8 +39,8 @@ def step(dofs, inertia, constraints, **kwargs):
     
     while True:
 
-        J, phi, c = constraints(dofs, **kwargs)
-
+        J, phi, c = constraint.assemble( constraints(dofs, **kwargs) )
+        
         # Minv = Linv.transpose().dot(Linv)
 
         LinvJT = Linv.dot(J.transpose())
@@ -108,7 +109,7 @@ def calibration(world, dofs, inertia, constraints, **kwargs):
             fr += world.scale * np.cross( local, world.frame.orient.conj()(f) )
             fs += world.frame.orient(local).dot(f)
 
-        net = math.sqrt( norm2(ft) + norm2(fr) + fs * fs )
+        net = math.sqrt( norm2(ft) + norm2(fr) + fs * fs ) / dt
         print 'calibration error:', net
 
         if net <= eps: break 

@@ -17,6 +17,7 @@ import json
 import math
 import time
 import skeleton
+import model
 
 payload = [None]
 
@@ -51,104 +52,10 @@ try:
     dofs = Rigid3.array( len(body) )
     
 
-    def end_point(name, **kwargs):
-        return target.chunk(name, -basis(1, 3) * body[name].dim / 2, **kwargs)
+    adaptor = model.kinect_adaptor(body)
 
 
-    def start_point(name, **kwargs):
-        return target.chunk(name, basis(1, 3) * body[name].dim / 2, **kwargs)
-    
-    
-    occulus = {
-        'LeftHand': end_point('forearm_left'),
-        'LeftElbow': end_point('arm_left'),    
-        'RightHand': end_point('forearm_right'),
-        'RightElbow': end_point('arm_right'),
-
-        'Hips': end_point('trunk'),
-        'Head': start_point('head'),
-        'Neck': end_point('head'),
-    }
-
-    kinect = {
-        'HandLeft': end_point('forearm_left'),
-        'HandRight': end_point('forearm_right'),
-
-
-        'HipLeft': start_point('femur_left'),
-        'HipRight': start_point('femur_right'),    
-
-        'AnkleLeft': end_point('tibia_left'),
-        'AnkleRight': end_point('tibia_right'),
-
-        'Head': start_point('head'),
-
-        'KneeLeft': start_point('tibia_left'),
-        'KneeRight': start_point('tibia_right'),
-
-        'ElbowLeft': end_point('arm_left'),    
-        'ElbowRight': end_point('arm_right'),
-
-        'ShoulderLeft': start_point('arm_left'),    
-        'ShoulderRight': start_point('arm_right'),
-        
-        'Neck': end_point('head'),
-    }
-
-
-
-    def desired(v): return np.array(map(float, [ v['x'],
-                                             v['y'],
-                                             v['z'] ]) )
-    
-
-    def targets( data, adaptor, world ):
-        '''adaptor maps target names to chunks'''
-
-        res = []
-        if not data: return res
-
-        for d in data:
-            pos = d.get('position', None)
-
-            if pos:
-                adapt = adaptor.get(pos)
-                if adapt:
-                    p = world( desired(d) )
-                    
-                    res.append( adapt( p ) )
-
-        return res
-
-    adaptor = kinect
-
-
-    class World:
-
-        def __init__(self):
-            self.frame = Rigid3()
-            self.scale = 1.0
-
-        def __call__(self, x):
-            return self.frame( self.scale * x )
-
-
-        def dump(self):
-            return self.__dict__
-
-        def load(self, x):
-            self.scale = x['scale']
-            self.frame.load(x['frame'])
-            
-        def inv(self):
-            res = World()
-            res.frame = self.frame.inv()
-            res.frame.center /= self.scale
-            res.scale = 1.0 / self.scale
-            return res
-
-
-    world = World()
+    world = target.World()
 
    
 
@@ -170,16 +77,10 @@ try:
 
         def target_constraints(dofs, **kwargs):
             out_data = kwargs.get('out_data', {})
-            t = targets( payload[0], adaptor, world )
+            t = target.create( payload[0], adaptor, world )
             out_data['targets'] = t
             return target.constraints(t, body, dofs, compliance = 1e-4)
 
-
-        def build( *args ):
-            def res(dofs, **kwargs):
-                full = sum( (f(dofs, **kwargs) for f in args), [] )
-                return constraint.merge( full )
-            return res
 
         def source(**kwargs):
 
@@ -191,7 +92,7 @@ try:
             # don't enable targets just yet to get skeleton in shape
             print 'assembling skeleton...'
             for d, mu in solver.step(dofs, inertia,
-                                     build(skeleton_constraints),
+                                     skeleton_constraints,
                                      dt = dt):
                 yield dofs, None
                 
@@ -223,7 +124,7 @@ try:
                 def init_target_constraints(dofs, **kwargs):
 
                     out_data = kwargs.get('out_data', {})
-                    t = targets( get_data(), adaptor, world )
+                    t = target.create( get_data(), adaptor, world )
                     out_data['targets'] = t
 
                     return target.constraints(t, body, dofs, compliance = 1e-4)
@@ -232,8 +133,8 @@ try:
                 eps = 1e-2
 
                 for d, t in solver.calibration(world, dofs, inertia,
-                                                 build(skeleton_constraints,
-                                                       init_target_constraints),
+                                                 constraint.merge(skeleton_constraints,
+                                                                  init_target_constraints),
                                                  dt = h,
                                                  eps = eps):
                     w.targets = t
@@ -247,17 +148,17 @@ try:
             except:
                 for d, t in calibrate():
                     yield d, t
-            with open(calibration_filename, 'w') as f:
-                f.write( json.dumps(world, default = lambda o: o.dump()))
-                print 'wrote', calibration_filename
+                with open(calibration_filename, 'w') as f:
+                    f.write( json.dumps(world, default = lambda o: o.dump()))
+                    print 'wrote', calibration_filename
                     
             # then regular ik
             print 'ik started'
             out_data = {}
             
             for d, mu in solver.step(dofs, inertia,
-                                     build(skeleton_constraints,
-                                           target_constraints),
+                                     constraint.merge(skeleton_constraints,
+                                                      target_constraints),
                                      dt = dt,
                                      out_data = out_data):
                 t = out_data['targets']

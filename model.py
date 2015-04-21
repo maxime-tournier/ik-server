@@ -1,3 +1,5 @@
+# default skeleton model
+
 import numpy as np
 
 from tool import *
@@ -182,6 +184,51 @@ def cleanup(x):
     except AttributeError:
         return x
 
-print json.dumps( cleanup(skeleton) )
+
+
+# target mapping
+
+
+
+def kinect_adaptor(body):
+
+    import target
+    
+    def end_point(name, **kwargs):
+        return target.chunk(name, -basis(1, 3) * body[name].dim / 2, **kwargs)
+
+
+    def start_point(name, **kwargs):
+        return target.chunk(name, basis(1, 3) * body[name].dim / 2, **kwargs)
+
+    
+    return {
+        'HandLeft': end_point('forearm_left'),
+        'HandRight': end_point('forearm_right'),
+
+
+        'HipLeft': start_point('femur_left'),
+        'HipRight': start_point('femur_right'),    
+
+        'AnkleLeft': end_point('tibia_left'),
+        'AnkleRight': end_point('tibia_right'),
+
+        'Head': start_point('head'),
+
+        'KneeLeft': start_point('tibia_left'),
+        'KneeRight': start_point('tibia_right'),
+
+        'ElbowLeft': end_point('arm_left'),    
+        'ElbowRight': end_point('arm_right'),
+
+        'ShoulderLeft': start_point('arm_left'),    
+        'ShoulderRight': start_point('arm_right'),
+        
+        'Neck': end_point('head'),
+    }
+    
+
+if __name__ == '__main__':
+    print json.dumps( cleanup(skeleton) )
 
 

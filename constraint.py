@@ -72,14 +72,18 @@ def rest(joint, dofs, **kwargs):
 
 
 
-
-
-def merge( chunks ):
+def assemble( chunks ):
 
     J = np.vstack( (c[0] for c in chunks ) )
     phi = np.concatenate( tuple(c[1] for c in chunks ) )
     c = np.concatenate( tuple(c[2] for c in chunks ) )
 
     return J, phi, c
+
+
+def merge( *args ):
+    def res(dofs, **kwargs):
+        return  sum( (f(dofs, **kwargs) for f in args), [] )
+    return res
 
 
