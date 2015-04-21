@@ -92,13 +92,22 @@ class Rigid3(np.ndarray):
         
         return res
 
-
     def __call__(self, x):
         '''applies rigid transform to vector x'''
         return self.center + self.orient(x)
+
+
+    def dump(self):
+        return self.tolist()
+
+    def load(self, x):
+        self[:] = x
     
+    # def dump(self):
+    #     return self.__dict__
 
-
+    # def load(self, x):
+    #     self.__dict__ = x
     
 
 
@@ -125,6 +134,12 @@ class Quaternion(np.ndarray):
     def inv(self):
         '''inverse'''
         return self.conj() / self.dot(self)
+
+    def dump(self):
+        return self.tolist()
+
+    def load(self, x):
+        self[:] = x
     
     def conj(self):
         '''conjugate'''

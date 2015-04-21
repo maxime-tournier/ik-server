@@ -15,7 +15,7 @@ head = {
 
 trunk =  {
     'mass': 20,
-    'dim': vec([0.4, 0.7, 0.25])
+    'dim': vec([0.4, 0.65, 0.25])
 }
 
 
@@ -47,6 +47,7 @@ foot = {
 
 stiffness = 1e2
 compliance = 1 / stiffness
+hard = 1e-8
 
 def hip(side):
 
@@ -73,7 +74,7 @@ def shoulder(side):
                               0]],
                    ['arm_{}'.format(side), [0, arm['dim'][1] / 2, 0]]],
         
-        "rest": Quaternion.exp( sign * math.pi / 4.0 * basis(2, 3)),
+        "rest": Quaternion.exp( sign * math.pi / 6.0 * basis(2, 3)),
         "compliance": compliance
     }
 
@@ -87,7 +88,7 @@ def elbow(side):
                                                 forearm['dim'][1] / 2,
                                                 0]]],
         "rest": Quaternion.exp( -math.pi / 6 * basis(0, 3) ),
-        "compliance": [compliance, 0, 0]
+        "compliance": [compliance, hard, hard]
     }
 
 def knee(side):
@@ -99,7 +100,7 @@ def knee(side):
                                               tibia['dim'][1] / 2,
                                               0]]],
         "rest": Quaternion.exp( math.pi / 6 * basis(0, 3) ),
-        "compliance": [compliance, 0, 0]
+        "compliance": [compliance, hard, hard]
     }
 
 # TODO finer ?
@@ -169,7 +170,7 @@ skeleton = {
 
 
 def cleanup(x):
-    '''make skeleton defintion json-friendly'''
+    '''make skeleton definition json-friendly'''
     
     if type(x) is dict:
         return { k:cleanup(v) for k, v in x.iteritems() }

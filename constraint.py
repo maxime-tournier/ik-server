@@ -6,6 +6,12 @@ import mapping
 # TODO not quite sure attach/rest belong here, should probably be in
 # skeleton
 
+
+# a constraint should return a list of tuple of the form: (J, phi, c)
+# where J is the constraint jacobian, phi is the constraint error and
+# c is the constraint compliance. you may add other info to the tuple
+# as well for you own purpose.
+
 def attach(joint, dofs, **kwargs):
     
     rows = 3

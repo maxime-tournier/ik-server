@@ -1,8 +1,15 @@
 
 import numpy as np
 from tool import *
+import json
 
-
+def load(filename):
+    try:
+        return json.loads( open('skeleton.json').read() )
+    except:
+        import sys
+        print 'error loading skeleton, generate one first'
+        raise
 
 def create( skeleton ):
 

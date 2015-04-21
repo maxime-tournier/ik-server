@@ -3,3 +3,4 @@
 *.pyc
 /.qglviewer.xml
 /skeleton.json
+/calibration.json

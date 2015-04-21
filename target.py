@@ -20,6 +20,24 @@ import mapping
 
 
 
+
+def chunk(name, local, **kwargs):
+    '''produces a target info from desired coordinates'''
+    
+    compliance = kwargs.get('compliance', 1e-5)
+
+    def res(desired):
+        return {
+            'body': name,
+            'local': local,
+            'desired': desired,
+            # 'compliance': compliance
+        }
+
+    return res
+
+
+
 def constraints(info, body, dofs, **kwargs):
     rows = 3
     cols = 6 * len(body)
@@ -29,18 +47,18 @@ def constraints(info, body, dofs, **kwargs):
     
     res = []
     
-    for i, c in enumerate(info):
-        k = body[ c['body'] ].index
+    for i, t in enumerate(info):
+        k = body[ t['body'] ].index
         
-        local = np.array(c['local'])
-        desired = world( np.array(c['desired']) )
+        local = np.array(t['local'])
+        desired = world( np.array(t['desired']) )
 
         J = np.zeros( (rows, cols) )
         J[:, 6*k: 6*k+6], current = mapping.rigid(dofs[k], local)
 
         phi = current - desired
 
-        c = c.get('compliance', compliance) * np.ones( 3 )
+        c = t.get('compliance', compliance) * np.ones( 3 )
         
         res.append( (J, phi, c) )
         

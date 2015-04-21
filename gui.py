@@ -5,20 +5,25 @@ from OpenGL.GL import *
 from tool import *
 
 import pyqglviewer
+
 class Viewer(pyqglviewer.QGLViewer):
 
+    def __init__(self):
+        pyqglviewer.QGLViewer.__init__(self)
 
+        self.dofs = None
+        self.targets = None
     
     def animate(self):
         try:
-            self.dofs = next(self.source)
+            self.dofs, self.targets = next(self.source)
         except StopIteration:
             import sys
             sys.exit(0)
 
     def draw(self):
 
-        if 'dofs' not in self.__dict__: return
+        if self.dofs is None: return
         
         glDisable(GL_LIGHTING)
 
@@ -54,7 +59,7 @@ class Viewer(pyqglviewer.QGLViewer):
         
 
 
-        if 'targets' in self.__dict__:
+        if self.targets:
             glColor(1, 0.5, 0)
             glBegin(GL_LINES)
 
