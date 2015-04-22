@@ -123,6 +123,10 @@ class Quaternion(np.ndarray):
             return np.zeros( (size, 3) ).view(dtype = Deriv)
 
 
+
+    rad = math.pi / 180.0
+    deg = 180.0 / math.pi
+    
     def __new__(cls, *args):
         return np.ndarray.__new__(cls, 4)
         
@@ -156,7 +160,8 @@ class Quaternion(np.ndarray):
     def real(self, value): self[-1] = value
 
     @property
-    def imag(self): return self[:3]
+    def imag(self):
+        return np.array( self[:3] )
 
     @imag.setter
     def imag(self, value): self[:3] = value
@@ -239,7 +244,7 @@ class Quaternion(np.ndarray):
     
     @staticmethod
     def exp(x):
-        '''quaternion exponential (doubled)'''
+        '''quaternion exponential (half)'''
 
         theta = norm(x)
 
@@ -261,9 +266,47 @@ class Quaternion(np.ndarray):
 
         q = self.flip()
         theta = q.angle()
-
+        
         if math.fabs( theta ) < sys.float_info.epsilon:
             return np.zeros(3)
 
         return (theta / math.sin(theta / 2.0)) * q.imag
+    
 
+
+    def proj(self, n):
+        '''geodesic projection (n must be unit length)'''
+
+        dot = self.imag.dot(n)
+        
+        if self.real != 0:
+            theta = math.atan( dot / self.real )
+
+            # quaternion: theta
+            # rotation: 2 * theta (exp will half)
+            return 2 * theta
+        
+        elif dot != 0:
+            theta = math.atan( self.real / dot )
+            return 2 * (math.pi / 2.0 - theta)
+        else:
+            return math.pi / 2.0
+    
+    def euler(self, order = xrange(3) ):
+        '''not good though :-/'''
+        q = Quaternion()
+        q[:] = self
+
+        res = np.zeros(3)
+        
+        for j, i in enumerate(order):
+            n = basis(i, 3)
+            theta = q.proj( n )
+            e = Quaternion.exp( -theta * n  )
+            q[:] = e * q
+            res[i] = theta
+            # print q.angle()
+
+        return  res
+        
+        

@@ -15,11 +15,16 @@ head = {
     'dim': vec([0.25, 0.25, 0.25]),
 }
 
-trunk =  {
-    'mass': 20,
-    'dim': vec([0.4, 0.65, 0.25])
+
+upperback = {
+    'mass': 10,
+    'dim': vec([0.4, 0.4, 0.25])
 }
 
+lowerback = {
+    'mass': 10,
+    'dim': vec([0.3, 0.25, 0.25])
+}
 
 femur =  {
     'mass': 7,
@@ -56,9 +61,10 @@ def hip(side):
     sign = 1 if side == 'left' else -1
     
     return {
-        "coords": [['trunk', [sign * trunk['dim'][0] / 2,
-                              - trunk['dim'][1] / 2,
-                              0]],
+        "coords": [['lowerback', [sign * lowerback['dim'][0] / 2,
+                                  - lowerback['dim'][1] / 2,
+                                  0]],
+                   
                    ['femur_{}'.format(side), [0,
                                               femur['dim'][1] / 2,
                                               0]]],
@@ -71,8 +77,8 @@ def shoulder(side):
     sign = 1 if side == 'left' else -1
     
     return {
-        "coords": [['trunk', [sign * (1.2 * trunk['dim'][0]) / 2,
-                              trunk['dim'][1] / 2,
+        "coords": [['upperback', [sign * (1.2 * upperback['dim'][0]) / 2,
+                                  upperback['dim'][1] / 2,
                               0]],
                    ['arm_{}'.format(side), [0, arm['dim'][1] / 2, 0]]],
         
@@ -118,13 +124,26 @@ def ankle(side):
         "compliance": compliance
     }
 
+def spine():
+    return {
+        "coords": [['upperback', [0,
+                                              -upperback['dim'][1] / 2,
+                                              0]],
+                   ['lowerback', [0,
+                                  lowerback['dim'][1] / 2,
+                                  0]]],
+        "rest": Quaternion(),
+        "compliance": 1e-3
+    }
+
 
 skeleton = {
     
     'body': {
 
         'head': head,
-        'trunk': trunk,
+        'upperback': upperback,
+        'lowerback': lowerback,
 
         'femur_left': femur,
         'femur_right': femur,
@@ -147,7 +166,7 @@ skeleton = {
 
         'neck': {
             "coords": [['head', [0, -0.15, 0]],
-                       ['trunk', [0, 0.35, 0]]],
+                       ['upperback', [0, 0.2, 0]]],
             "rest": Quaternion(),
             "compliance": compliance
         },
@@ -166,7 +185,8 @@ skeleton = {
 
         'ankle_left': ankle('left'),
         'ankle_right': ankle('right'),
-        
+
+        'spine': spine(),
     }
 }
 
@@ -187,7 +207,6 @@ def cleanup(x):
 
 
 # target mapping
-
 
 
 def kinect_adaptor(body):

@@ -34,6 +34,19 @@ def create( skeleton ):
 
     class Joint:
 
+        # TODO rigid ?
+        def state(self, dofs):
+            p = dofs[self.parent.body.index]
+            c = dofs[self.child.body.index]
+
+            res = (p.inv() * c).orient
+
+            # TODO ?
+            # if self.rest is not None:
+            #     res = self.rest.inv() * res
+
+            return res
+        
         class Coords: pass
 
     joint = {}
