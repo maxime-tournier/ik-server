@@ -2,7 +2,6 @@ import socket
 import time
 import sys
 import json
-import gc
 
 def status( e ):
     print >>sys.stderr, e
@@ -22,20 +21,20 @@ def data(**kwargs):
         status('connecting to source...' )
         sock.connect( (ip, port) )
         status('ok')
-        
 
         try:
-        
-            content = sock.makefile()
+            stream = sock.makefile(mode = 'rw')
 
-            for line in content:
+            for line in stream:
                 try:
-                    yield json.loads(line)
+                    obj = json.loads(line)
+                    stream.write('ack\n');
+                    stream.flush()
+                    yield obj
                 except ValueError, e:
                     status('JSON failed: {}'.format(e) )
                     status(line)
 
-                gc.collect()
         except socket.error:
             status('source diconnected')
         finally:

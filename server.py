@@ -15,13 +15,12 @@ import socket
 ip = '172.22.15.162'
 port = 9000
 
-# source thread
 def fetch(event, result):
+    '''kinect posture thread'''
 
     for data in kinect.data(ip = ip, port = port):
         if data: event.set()
         result['data'] = data
-
 
 source = {}
 ready = threading.Event()
@@ -65,7 +64,10 @@ print 'waiting for kinect data...'
 while not ready.wait(1): pass
 print 'ok'
 
+
 def server(**kwargs):
+    '''occulus posture server'''
+    
     ip = ''
     port = kwargs.get('port', 9000)
 
@@ -81,7 +83,7 @@ def server(**kwargs):
             conn, addr = sock.accept()
 
             print 'client connected'
-            yield conn.makefile()
+            yield conn.makefile('rw')
 
         finally:
             print 'client disconnected'
@@ -129,7 +131,10 @@ def send(event, result):
     
     for client in server():
 
+        frame = 0
         while True:
+
+            # wait for dofs
             event.wait()
             dofs = result['dofs']
             event.clear()
@@ -152,7 +157,7 @@ def send(event, result):
                 # angles = -ey * state.angle() * Quaternion.deg
                 angles = state.euler(order) * Quaternion.deg
 
-                print k, angles
+                # print k, angles
                 
                 chunk = {
                     'rotation' : k,
@@ -164,7 +169,14 @@ def send(event, result):
                 data.append( chunk )
 
             msg = json.dumps( data )
-            client.write( msg + '\r\n' )
+            try:
+                print 'frame', frame
+                frame += 1
+                client.write( msg + '\r\n' )
+                client.flush()
+            except socket.error:
+                print 'write error'
+                break
 
 occulus = threading.Thread(target = send, args = (ready, source) )
 occulus.daemon = True
