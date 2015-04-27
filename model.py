@@ -6,50 +6,54 @@ from tool import *
 import json
 
 
-# TODO make this easy to customize
 from numpy import array as vec
 
+scale = 1
+
+vol = scale * scale * scale
+
+# TODO scale masses
 
 head = {
-    'mass': 5,
-    'dim': vec([0.25, 0.25, 0.25]),
+    'mass': vol * 5,
+    'dim': scale * vec([0.25, 0.25, 0.25]),
 }
 
 
 upperback = {
-    'mass': 10,
-    'dim': vec([0.4, 0.4, 0.25])
+    'mass': vol * 10,
+    'dim': scale * vec([0.4, 0.4, 0.25])
 }
 
 lowerback = {
-    'mass': 10,
-    'dim': vec([0.3, 0.25, 0.25])
+    'mass': vol * 10,
+    'dim': scale * vec([0.3, 0.25, 0.25])
 }
 
 femur =  {
-    'mass': 7,
-    'dim': vec([0.2, 0.5, 0.2]),
+    'mass': vol * 7,
+    'dim': scale * vec([0.2, 0.5, 0.2]),
 }
 
 
 tibia =  {
-    'mass': 5,
-    'dim': [0.10, 0.4, 0.1]
+    'mass': vol * 5,
+    'dim': scale * vec([0.10, 0.4, 0.1])
 }
 
 arm = {
-    'mass': 4,
-    'dim': [0.1, 0.4, 0.10]
+    'mass': vol * 4,
+    'dim': scale * vec([0.1, 0.4, 0.10])
 }
 
 forearm =  {
-    'mass': 3,
-    'dim': [0.1, 0.4, 0.1]
+    'mass': vol * 3,
+    'dim': scale * vec([0.1, 0.4, 0.1])
 }
 
 foot = {
-    'mass': 2,
-    'dim': [0.1, 0.3, 0.1]
+    'mass': vol * 2,
+    'dim': scale * vec([0.1, 0.3, 0.1])
 }
 
 stiffness = 1e2
@@ -136,6 +140,14 @@ def spine():
         "compliance": 1e-3
     }
 
+def neck():
+    return {
+        "coords": [['head', [0, -head['dim'][1], 0]],
+                   ['upperback', upperback['dim'][1], 0]]],
+        "rest": Quaternion(),
+        "compliance": compliance
+    }
+
 
 skeleton = {
     
@@ -164,12 +176,7 @@ skeleton = {
 
     'joint': {
 
-        'neck': {
-            "coords": [['head', [0, -0.15, 0]],
-                       ['upperback', [0, 0.2, 0]]],
-            "rest": Quaternion(),
-            "compliance": compliance
-        },
+        'neck': neck(),
 
         'shoulder_left': shoulder('left'),
         'shoulder_right': shoulder('right'),
