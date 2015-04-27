@@ -15,12 +15,11 @@ import socket
 ip = sys.argv[1]
 
 occulus_port = 9000
-kinect_port = 9001
 
 def fetch(event, result):
     '''kinect posture thread'''
 
-    for data in kinect.data(ip = ip, port = kinect_port):
+    for data in kinect.data(ip = ip):
         if data: event.set()
         result['data'] = data
 
@@ -113,6 +112,7 @@ system_spine = flip( [0, 0, 1] )
 shoulder_origin = Quaternion.exp( -math.pi / 2.0 * ez )
 id = Quaternion()
 
+# relative info
 info = {
     'LeftElbow': ('elbow_left', system_left, id ),
     'LeftShoulder': ('shoulder_left', system_left, shoulder_origin ),
@@ -122,6 +122,8 @@ info = {
 
     'Spine1': ('spine', system_spine, id),
 }
+
+
 
 def target_constraints(dofs, **kwargs):
     t = target.create( source['data'], adaptor, world )
@@ -143,11 +145,21 @@ def send(event, result):
 
             data = [ ]
 
-            data.append( {'position': 'Hips',
-                          'x': '0',
-                          'y': '1',
-                          'z': '0' } )
+            abs = dofs[body['lowerback'].index]
 
+            orig = [0, 1, 0]
+            scale = [1, 1, 1]
+            orient = system_spine
+            
+            pos = orient(abs.center * scale) + orig
+            
+            data.append( {'position': 'Hips',
+                          'x': str(pos[0]),
+                          'y': str(pos[1]),
+                          'z': str(pos[2])} )
+
+            
+            
             for k, (v, ref, origin) in info.iteritems():
                 state = origin.conj() * ref.conj() * joint[v].state(dofs) * ref 
 

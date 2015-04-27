@@ -26,8 +26,7 @@ flags = {}
 def fetch():
 
     while 'exit' not in flags:
-        for data in kinect.data(ip = sys.argv[1],
-                                port = 9000):
+        for data in kinect.data(ip = sys.argv[1]):
             if data:
                 # print 'got frame yo'
                 payload[0] = data

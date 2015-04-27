@@ -11,7 +11,7 @@ def status( e ):
 def data(**kwargs):
 
     ip = kwargs['ip']
-    port = kwargs.get('port', 9000)
+    port = kwargs.get('port', 9001)
     size = kwargs.get('size', 1024)
     # timeout = kwargs.get('timeout', None)
 

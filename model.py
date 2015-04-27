@@ -42,12 +42,12 @@ def skeleton(scale = 1):
 
     arm = {
         'mass': vol * 4,
-        'dim': scale * vec([0.1, 0.4, 0.10])
+        'dim': scale * vec([0.1, 0.3, 0.10])
     }
 
     forearm =  {
         'mass': vol * 3,
-        'dim': scale * vec([0.1, 0.4, 0.1])
+        'dim': scale * vec([0.1, 0.5, 0.1])
     }
 
     foot = {
@@ -141,8 +141,8 @@ def skeleton(scale = 1):
 
     def neck():
         return {
-            "coords": [['head', [0, -head['dim'][1], 0]],
-                       ['upperback', [0, upperback['dim'][1], 0]]],
+            "coords": [['head', [0, -head['dim'][1] / 2, 0]],
+                       ['upperback', [0, upperback['dim'][1] / 2, 0]]],
             "rest": Quaternion(),
             "compliance": compliance
         }

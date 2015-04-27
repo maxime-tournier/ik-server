@@ -31,7 +31,7 @@ class Rigid3(np.ndarray):
 
         @property
         def angular(self):
-            return self[3:]
+            return np.array(self[3:])
 
         @angular.setter
         def angular(self, value):
@@ -57,7 +57,7 @@ class Rigid3(np.ndarray):
     
     @property
     def center(self):
-        return self[:3]
+        return np.array(self[:3])
 
     @center.setter
     def center(self, value):

@@ -13,12 +13,11 @@ import json
 
 
 ip = sys.argv[1]
-port = 9001
 
 # source thread
 def fetch(event, result):
 
-    for data in kinect.data(ip = ip, port = port):
+    for data in kinect.data(ip = ip):
         if data: event.set()
         result['data'] = data
 
@@ -80,7 +79,7 @@ def target_constraints(dofs, **kwargs):
     out['targets'] = t
     return target.constraints(t, body, dofs, compliance = 1e-4)
 
-dt = 1e-2
+dt = 5e-3
 eps = 1e-2
 
 for d, t in solver.calibration(world, dofs, inertia,
