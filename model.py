@@ -143,7 +143,7 @@ def spine():
 def neck():
     return {
         "coords": [['head', [0, -head['dim'][1], 0]],
-                   ['upperback', upperback['dim'][1], 0]],
+                   ['upperback', [0, upperback['dim'][1], 0]]],
         "rest": Quaternion(),
         "compliance": compliance
     }
