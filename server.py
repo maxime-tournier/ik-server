@@ -13,12 +13,14 @@ import json
 import socket
 
 ip = sys.argv[1]
-port = 9000
+
+occulus_port = 9000
+kinect_port = 9001
 
 def fetch(event, result):
     '''kinect posture thread'''
 
-    for data in kinect.data(ip = ip, port = port):
+    for data in kinect.data(ip = ip, port = kinect_port):
         if data: event.set()
         result['data'] = data
 
@@ -69,7 +71,7 @@ def server(**kwargs):
     '''occulus posture server'''
     
     ip = ''
-    port = kwargs.get('port', 9000)
+    port = kwargs.get('port', occulus_port)
 
     while True:
 

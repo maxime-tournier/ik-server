@@ -23,7 +23,7 @@ you may tweak either `model.py` or the resulting file for your needs.
 $ python calibrate.py <ip>
 ```
 
-where `<ip>` is the target source server, with default port 9000.
+where `<ip>` is the target source server, with default port 9001.
 
 the mapping between source targets and model anchors is performed in
 `target.py`, so tweak it as needed.
@@ -47,7 +47,7 @@ generic please wait until I make this part customizable)
 $ python server.py <ip>
 ```
 
-this will connect to a target server `<ip` on port `9000`, and serve
+this will connect to a target server `<ip` on port `9001`, and serve
 joint angles for the occulus demo on port `9000` as well.
 
 
