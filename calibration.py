@@ -12,7 +12,7 @@ import constraint
 import json
 
 
-ip = '172.22.15.162'
+ip = sys.argv[1]
 port = 9000
 
 # source thread
