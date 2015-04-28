@@ -22,7 +22,7 @@ class Rigid3(np.ndarray):
 
         @property
         def linear(self):
-            return self[:3]
+            return np.array(self[:3])
 
         @linear.setter
         def linear(self, value):
@@ -45,7 +45,8 @@ class Rigid3(np.ndarray):
         @staticmethod
         def view( array ):
             if len(array) % 6 > 0: raise Exception('bad array size')
-            return array.reshape( (len(array) / 6, 6 ) ).view(dtype = Rigid3.Deriv )
+            reshape = array.reshape( (len(array) / 6, 6 ) )
+            return reshape.view(dtype = Rigid3.Deriv )
         
     @staticmethod
     def array(size):

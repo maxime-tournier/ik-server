@@ -43,7 +43,6 @@ def step(dofs, inertia, constraints, **kwargs):
         def dot(self, other):
             return (other.T / diag_sqrt ).T
 
-
     Linv = Lower()
     LinvT = Upper()
 
@@ -67,13 +66,13 @@ def step(dofs, inertia, constraints, **kwargs):
         # TODO external forces
         f = Rigid3.Deriv.array(len(dofs))
 
-        p = dt * f.flatten()
+        p = dt * np.array(f.flatten()[:])
         
         Linvp = Linv.dot(p)
         b = -phi / dt - LinvJT.transpose().dot(Linvp)
 
         mu = Sinv.dot(b)
-
+        
         x = Rigid3.Deriv.view( LinvT.dot(Linvp + LinvJT.dot(mu)) )
         
         integrate(dofs, x, dt)

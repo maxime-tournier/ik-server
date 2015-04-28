@@ -139,9 +139,9 @@ def send(event, result):
         while True:
 
             # wait for dofs
-            event.wait()
+            # event.wait()
             dofs = result['dofs']
-            event.clear()
+            # event.clear()
 
             data = [ ]
 
