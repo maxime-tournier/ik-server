@@ -2,5 +2,5 @@
 *~
 *.pyc
 /.qglviewer.xml
-/skeleton.json
-/calibration.json
+# /skeleton.json
+# /calibration.json

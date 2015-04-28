@@ -12,8 +12,11 @@ import constraint
 import json
 import socket
 
-ip = sys.argv[1]
-
+try:
+    ip = sys.argv[1]
+except:
+    ip = '127.0.0.1'
+    
 occulus_port = 9000
 
 def fetch(event, result):
