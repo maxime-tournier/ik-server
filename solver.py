@@ -17,25 +17,39 @@ def step(dofs, inertia, constraints, **kwargs):
 
     dt = kwargs.get('dt', 1)
     M = inertia(dofs)
+
+    diag = np.diag(M)
+    diag_sqrt = np.sqrt(diag)
     
     L = np.linalg.cholesky(M)
     LT = L.transpose()
-    
+
     # TODO better ?
     # Linv = np.linalg.inv(L)
-    class Matrix:
+    class Lower:
 
         def dot(self, other):
             return sp.linalg.solve_triangular(L, other, lower = True, check_finite = False)
 
 
-    class MatrixT:
+    class Upper:
 
         def dot(self, other):
             return sp.linalg.solve_triangular(LT, other, lower = False, check_finite = False)
-        
-    Linv = Matrix()
-    LinvT = MatrixT()
+
+
+    class Diagonal:
+
+        def dot(self, other):
+            return (other.T / diag_sqrt ).T
+
+
+    Linv = Lower()
+    LinvT = Upper()
+
+    # hack
+    Linv = Diagonal()
+    LinvT = Diagonal()
     
     while True:
 
@@ -48,8 +62,8 @@ def step(dofs, inertia, constraints, **kwargs):
         S = LinvJT.transpose().dot(LinvJT) + np.diag(c / (dt * dt))
 
         # TODO arg
-        Sinv = np.linalg.inv(S)
-
+        Sinv = sp.linalg.inv(S, overwrite_a = True, check_finite = False)
+        
         # TODO external forces
         f = Rigid3.Deriv.array(len(dofs))
 
