@@ -12,8 +12,11 @@ import constraint
 import json
 
 
-ip = sys.argv[1]
-
+try:
+    ip = sys.argv[1]
+except:
+    ip = '127.0.0.1'
+    
 # source thread
 def fetch(event, result):
 
